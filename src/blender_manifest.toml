@@ -1,0 +1,46 @@
+schema_version = "1.0.0"
+
+id = "blendflare_asset_browser"
+version = "1.0.0"
+name = "Blendflare Asset Browser"
+tagline = "Search and import assets from Blendflare directly within Blender"
+maintainer = "Blendflare Team"
+type = "add-on"
+
+website = "https://docs.blendflare.com"
+
+tags = [
+  "Import-Export",
+  "User Interface",
+  "3D View",
+]
+
+blender_version_min = "4.2.0"
+
+license = [
+  "SPDX:GPL-3.0-or-later",
+]
+copyright = [
+  "2025-2026 Blendflare Team",
+]
+
+# Optional list of supported platforms. If omitted, the extension will be available in all operating systems.
+# platforms = ["windows-x64", "macos-arm64", "linux-x64"]
+# Other supported platforms: "windows-arm64", "macos-x64"
+
+wheels = [
+  "./wheels/blendflare-1.0.3-py3-none-any.whl",
+]
+
+[permissions]
+network = "Access Blendflare online asset library"
+files = "Import assets into the current Blender project"
+
+[build]
+paths_exclude_pattern = [
+  "__pycache__/",
+  "/.git/",
+  "/*.zip",
+  ".gitignore",
+  ".claude/",
+]
