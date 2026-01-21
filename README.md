@@ -109,7 +109,7 @@ We invite the community to explore the SDK and build their own integrations!
 
 ### Steps
 
-1. Download the latest release (`.zip` file) from the [Releases page](#).
+1. Download the latest release (`.zip` file) from the [Releases page](https://github.com/blendflare/blendflare-addon/releases).
 2. Open Blender.
 3. Go to **Edit** > **Preferences**.
 4. Select the **Get Extensions** (or **Add-ons**) tab.
