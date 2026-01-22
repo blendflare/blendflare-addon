@@ -19,11 +19,7 @@ import bpy
 
 from .base import ApplyResult, BaseAssetApplier
 from .utils import find_blend_files
-
-
-def _log(message: str):
-    """Log a message to the console with Blendflare prefix."""
-    print(f"[Blendflare Scene] {message}")
+from ...logger import scene_logger as _log
 
 
 class SceneApplier(BaseAssetApplier):

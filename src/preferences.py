@@ -46,6 +46,12 @@ class BlendflareAddonPreferences(AddonPreferences):
         default="",
     )
 
+    debug_console: BoolProperty(
+        name="Debug Console",
+        description="Enable verbose logging to Blender's console for debugging purposes",
+        default=False,
+    )
+
     def get_cache_path(self) -> str:
         """Get the effective cache path, always inside a 'blendflare' subfolder.
 
@@ -81,3 +87,8 @@ class BlendflareAddonPreferences(AddonPreferences):
         box = layout.box()
         box.label(text="UI Settings", icon='WINDOW')
         box.prop(self, "show_blendflare_header")
+
+        # Developer Settings
+        box = layout.box()
+        box.label(text="Developer", icon='CONSOLE')
+        box.prop(self, "debug_console")

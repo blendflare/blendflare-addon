@@ -8,10 +8,7 @@ from typing import List, Optional
 
 import bpy
 
-
-def _log(message: str):
-    """Log a message to the console with Blendflare prefix."""
-    print(f"[Blendflare Asset] {message}")
+from ...logger import asset_logger as _log
 
 
 @dataclass
@@ -109,7 +106,7 @@ class BaseAssetApplier(ABC):
             return True
 
         except Exception as e:
-            print(f"Error preparing asset: {e}")
+            _log.error(f"Error preparing asset: {e}")
             return False
 
     @abstractmethod

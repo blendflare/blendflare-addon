@@ -4,6 +4,7 @@ from bpy.types import Operator, Panel
 from bpy.props import StringProperty
 from blendflare import get_subcategories, Category
 from ..utils import safe_get_props
+from ....logger import toolbar_logger
 
 
 def draw_subcategory_dropdown(layout, context):
@@ -57,7 +58,7 @@ class BLENDFLARE_OT_select_subcategory(Operator):
             return {'CANCELLED'}
 
         props.subcategory = self.subcategory
-        print(f"[Blendflare] Subcategory filter: {self.subcategory or 'All'}")
+        toolbar_logger(f"Subcategory filter: {self.subcategory or 'All'}")
 
         return {'FINISHED'}
 
@@ -74,7 +75,7 @@ class BLENDFLARE_OT_clear_subcategory(Operator):
             return {'CANCELLED'}
 
         props.subcategory = ""
-        print("[Blendflare] Subcategory filter cleared")
+        toolbar_logger("Subcategory filter cleared")
 
         return {'FINISHED'}
 

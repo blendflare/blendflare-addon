@@ -1,6 +1,7 @@
 """Panel manager for the Blendflare UI panel."""
 import bpy
 from ...widgets import BL_UI_Drag_Panel, RADIUS_MD
+from ...logger import panel_logger
 
 
 class BlendflarePanelManager:
@@ -108,7 +109,7 @@ class BlendflarePanelManager:
             # Open the download dialog (routes to appropriate dialog based on category)
             bpy.ops.blendflare.open_download_dialog('INVOKE_DEFAULT')
         except Exception as e:
-            print(f"[Panel] Error opening download dialog: {e}")
+            panel_logger.error(f"Error opening download dialog: {e}")
 
     def update_results(self, response):
         """Update grid with search results."""
@@ -119,7 +120,7 @@ class BlendflarePanelManager:
             if hasattr(response, 'items'):
                 self._results_grid.projects = response.items
         except Exception as e:
-            print(f"[Panel] Error updating results: {e}")
+            panel_logger.error(f"Error updating results: {e}")
 
     def show(self):
         was_hidden = not self._is_visible
@@ -193,7 +194,7 @@ class BlendflarePanelManager:
                 if self._panel:
                     self._panel.draw()
             except Exception as e:
-                print(f"[Panel] Draw error: {e}")
+                panel_logger.error(f"Draw error: {e}")
 
     def handle_event(self, context, event):
         if self._is_visible and self._panel:
@@ -332,7 +333,7 @@ class BlendflarePanelManager:
                 self.update_results(cached)
 
         except Exception as e:
-            print(f"[Panel] Query error: {e}")
+            panel_logger.error(f"Query error: {e}")
 
     def _force_redraw(self):
         """Force all 3D viewports and headers to redraw."""

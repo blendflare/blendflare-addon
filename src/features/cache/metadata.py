@@ -6,6 +6,8 @@ from dataclasses import dataclass, field, asdict
 from datetime import datetime
 from typing import Any, Dict, Optional
 
+from ...logger import cache_logger
+
 
 METADATA_VERSION = "1.0"
 
@@ -133,7 +135,7 @@ class CacheMetadata:
             True if cache is outdated and needs to be refreshed
         """
         if not self.project_data:
-            print(f"[Blendflare Cache] is_outdated: No project_data, returning True")
+            cache_logger("is_outdated: No project_data, returning True")
             return True
 
         try:
@@ -154,23 +156,23 @@ class CacheMetadata:
 
             is_old = is_old_by_date or is_old_by_size
 
-            print(f"[Blendflare Cache] is_outdated check:")
-            print(f"  Cached date:  {cached_str} -> {cached_time}")
-            print(f"  Server date:  {current_str} -> {current_time}")
+            cache_logger("is_outdated check:")
+            cache_logger(f"  Cached date:  {cached_str} -> {cached_time}")
+            cache_logger(f"  Server date:  {current_str} -> {current_time}")
             if current_file_size > 0 and self.download_data:
-                print(f"  Cached size:  {self.download_data.file_size} bytes")
-                print(f"  Server size:  {current_file_size} bytes")
+                cache_logger(f"  Cached size:  {self.download_data.file_size} bytes")
+                cache_logger(f"  Server size:  {current_file_size} bytes")
             if is_old_by_date:
-                print(f"  Result:  OUTDATED by date (will re-download)")
+                cache_logger("  Result:  OUTDATED by date (will re-download)")
             elif is_old_by_size:
-                print(f"  Result:  OUTDATED by file size (will re-download)")
+                cache_logger("  Result:  OUTDATED by file size (will re-download)")
             else:
-                print(f"  Result:  VALID (use cache)")
+                cache_logger("  Result:  VALID (use cache)")
 
             return is_old
         except (ValueError, AttributeError) as e:
             # If we can't parse, assume outdated
-            print(f"[Blendflare Cache] is_outdated: Parse error ({e}), returning True")
+            cache_logger.warning(f"is_outdated: Parse error ({e}), returning True")
             return True
 
     def get_last_updated_display(self) -> str:

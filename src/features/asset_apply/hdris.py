@@ -22,11 +22,7 @@ import bpy
 
 from .base import ApplyResult, BaseAssetApplier
 from .utils import find_blend_files, TEXTURE_EXTENSIONS
-
-
-def _log(message: str):
-    """Log a message to the console with Blendflare prefix."""
-    print(f"[Blendflare HDRI] {message}")
+from ...logger import hdri_logger as _log
 
 
 # HDRI-specific extensions

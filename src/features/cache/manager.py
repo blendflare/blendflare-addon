@@ -5,6 +5,8 @@ from typing import Optional, Tuple
 
 import bpy
 
+from ...logger import cache_logger
+
 
 # Singleton instance
 _cache_manager: Optional["CacheManager"] = None
@@ -155,10 +157,10 @@ class CacheManager:
                 file_path = os.path.join(asset_dir, f)
                 if os.path.isfile(file_path):
                     os.remove(file_path)
-                    print(f"[Blendflare Cache] Removed old file: {f}")
+                    cache_logger(f"Removed old file: {f}")
             return True
         except Exception as e:
-            print(f"[Blendflare Cache] Error clearing asset dir: {e}")
+            cache_logger.error(f"Error clearing asset dir: {e}")
             return False
 
     def delete_asset(self, category: str, username: str, slug: str) -> bool:

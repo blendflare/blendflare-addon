@@ -20,11 +20,7 @@ from mathutils import Vector
 from .base import ApplyResult, BaseAssetApplier
 from .utils import find_textures, is_image_loaded, get_image_filename
 from ..sanitizer import cleanup_after_import
-
-
-def _log(message: str):
-    """Log a message to the console with Blendflare prefix."""
-    print(f"[Blendflare Model] {message}")
+from ...logger import model_logger as _log
 
 
 class ModelApplier(BaseAssetApplier):

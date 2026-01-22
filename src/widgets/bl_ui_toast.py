@@ -9,6 +9,7 @@ import time
 from gpu_extras.batch import batch_for_shader
 from .bl_ui_widget import BL_UI_Widget
 from .bl_ui_button import RADIUS_MD
+from ..logger import widget_logger
 
 
 class ToastType:
@@ -99,7 +100,7 @@ class BL_UI_Toast(BL_UI_Widget):
             icon_path = os.path.join(addon_dir, "icons", "loaders", f"{icon_name}.png")
 
             if not os.path.exists(icon_path):
-                print(f"⚠️  Toast icon not found: {icon_path}")
+                widget_logger.warning(f"Toast icon not found: {icon_path}")
                 cls._texture_cache[icon_name] = None
                 return None
 
@@ -117,7 +118,7 @@ class BL_UI_Toast(BL_UI_Widget):
             return texture
 
         except Exception as e:
-            print(f"❌ Error loading toast icon {icon_name}: {e}")
+            widget_logger.error(f"Error loading toast icon {icon_name}: {e}")
             cls._texture_cache[icon_name] = None
             return None
 
@@ -312,7 +313,7 @@ class BL_UI_Toast(BL_UI_Widget):
             batch.draw(img_shader)
 
         except Exception as e:
-            print(f"❌ Error drawing toast icon: {e}")
+            widget_logger.error(f"Error drawing toast icon: {e}")
 
     def _draw_text(self, color):
         """Draw toast message text."""
