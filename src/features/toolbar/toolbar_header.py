@@ -10,6 +10,7 @@ from ..panel import BlendflarePanelManager
 from .properties import BlendflareProperties
 from .utils import get_show_blendflare_header as _get_show_blendflare_header
 from blendflare.types import Category
+from ...logger import toolbar_logger
 
 
 # UI DRAWING FUNCTIONS - delegated to components to keep file small
@@ -106,7 +107,7 @@ def blendflare_header_wrapper(self, context):
             try:
                 _original_tool_header_draw(self, context)
             except Exception as e:
-                print(f"Error drawing original header: {e}")
+                toolbar_logger.error(f"Error drawing original header: {e}")
                 # Fallback to basic header
                 self.draw_tool_settings(context)
                 self.draw_mode_settings(context)
@@ -119,7 +120,7 @@ def blendflare_header_wrapper(self, context):
 def register():
     global _original_tool_header_draw
 
-    print("🚀 Registering Blendflare toolbar...")
+    toolbar_logger("Registering Blendflare toolbar...")
 
     # 1. Clean up any existing previews first (prevents ResourceWarning on re-register)
     if preview_collections:
@@ -135,24 +136,24 @@ def register():
     dir_path = os.path.dirname(__file__)
     icons_dir = os.path.join(dir_path, "../../icons")
 
-    print(f"📁 Loading Blendflare icons from: {icons_dir}")
+    toolbar_logger(f"Loading Blendflare icons from: {icons_dir}")
 
     try:
         logo_path = os.path.join(icons_dir, "logo.png")
         if os.path.exists(logo_path):
             pcoll.load("bf_logo", logo_path, 'IMAGE')
-            print("✓ Logo loaded successfully")
+            toolbar_logger("Logo loaded successfully")
         else:
-            print(f"⚠ Logo not found at: {logo_path}")
+            toolbar_logger.warning(f"Logo not found at: {logo_path}")
     except Exception as e:
-        print(f"❌ Error loading logo: {e}")
+        toolbar_logger.error(f"Error loading logo: {e}")
 
     preview_collections["main"] = pcoll
-    
+
     # 2. Add PointerProperty to Scene
     if not hasattr(bpy.types.Scene, "blendflare_props"):
         bpy.types.Scene.blendflare_props = PointerProperty(type=BlendflareProperties)
-        print("✓ Properties registered")
+        toolbar_logger("Properties registered")
         # Sanitize existing scene values across all scenes to ensure enum
         # properties have valid identifiers (use 'ANY' as the unassigned id).
         try:
@@ -181,29 +182,29 @@ def register():
     # 3. UI Manager register (solo handlers)
     from ..panel import register as panel_register
     panel_register()
-    print("✓ UI Manager registered")
+    toolbar_logger("UI Manager registered")
 
 
     # 4. Monkey Patch Header
     if getattr(bpy.types.VIEW3D_HT_tool_header, "draw", None) != blendflare_header_wrapper:
         _original_tool_header_draw = bpy.types.VIEW3D_HT_tool_header.draw
         bpy.types.VIEW3D_HT_tool_header.draw = blendflare_header_wrapper
-        print("✓ Header monkey-patched successfully")
-    
-    print("✅ Blendflare toolbar registered successfully!")
+        toolbar_logger("Header monkey-patched successfully")
+
+    toolbar_logger("Blendflare toolbar registered successfully!")
 
 
 def unregister():
     global _original_tool_header_draw
-    
-    print("🧹 Unregistering Blendflare toolbar...")
-    
+
+    toolbar_logger("Unregistering Blendflare toolbar...")
+
     # 1. Restore original header
     if _original_tool_header_draw is not None:
         bpy.types.VIEW3D_HT_tool_header.draw = _original_tool_header_draw
         _original_tool_header_draw = None
-        print("✓ Original header restored")
-    
+        toolbar_logger("Original header restored")
+
     # 2. Unregister UI Manager
     from ..panel import unregister as panel_unregister
     panel_unregister()
@@ -211,12 +212,12 @@ def unregister():
     # 3. Remove PointerProperty from Scene
     if hasattr(bpy.types.Scene, "blendflare_props"):
         del bpy.types.Scene.blendflare_props
-        print("✓ Properties unregistered")
-    
+        toolbar_logger("Properties unregistered")
+
     # 4. Clean up icons
     for pcoll in preview_collections.values():
         bpy.utils.previews.remove(pcoll)
     preview_collections.clear()
-    print("✓ Icons cleaned up")
-    
-    print("✅ Blendflare toolbar unregistered successfully!")
+    toolbar_logger("Icons cleaned up")
+
+    toolbar_logger("Blendflare toolbar unregistered successfully!")

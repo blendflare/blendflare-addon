@@ -3,6 +3,7 @@ import bpy
 from bpy.types import Operator
 from bpy.props import IntProperty
 from ..utils import safe_get_props
+from ....logger import toolbar_logger
 
 
 class BLENDFLARE_OT_next_page(Operator):
@@ -23,8 +24,8 @@ class BLENDFLARE_OT_next_page(Operator):
         
         # Increment page
         props.page += 1
-        
-        print(f"[Pagination] Next page: {props.page}")
+
+        toolbar_logger(f"Next page: {props.page}")
         
         # Force redraw
         try:
@@ -53,8 +54,8 @@ class BLENDFLARE_OT_prev_page(Operator):
         
         # Decrement page (min 1)
         props.page = max(1, props.page - 1)
-        
-        print(f"[Pagination] Previous page: {props.page}")
+
+        toolbar_logger(f"Previous page: {props.page}")
         
         # Force redraw
         try:
@@ -82,8 +83,8 @@ class BLENDFLARE_OT_first_page(Operator):
             return {'CANCELLED'}
         
         props.page = 1
-        
-        print(f"[Pagination] First page")
+
+        toolbar_logger("First page")
         
         try:
             context.area.tag_redraw()
@@ -110,8 +111,8 @@ class BLENDFLARE_OT_last_page(Operator):
             return {'CANCELLED'}
         
         props.page = props.total_pages
-        
-        print(f"[Pagination] Last page: {props.page}")
+
+        toolbar_logger(f"Last page: {props.page}")
         
         try:
             context.area.tag_redraw()

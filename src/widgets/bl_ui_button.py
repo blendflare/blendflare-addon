@@ -6,6 +6,8 @@ from gpu_extras.batch import batch_for_shader
 from .bl_ui_widget import BL_UI_Widget
 import os
 
+from ..logger import widget_logger
+
 
 # Border radius presets
 RADIUS_NONE = 0
@@ -131,25 +133,25 @@ class BL_UI_Button(BL_UI_Widget):
             # Support subfolder paths like 'categories/architecture'
             icon_path = os.path.join(addon_dir, "icons", *icon_name.split('/')) + ".png"
             
-            print(f"🔍 Looking for icon: {icon_path}")
-            
+            widget_logger(f"Looking for icon: {icon_path}")
+
             if not os.path.exists(icon_path):
-                print(f"⚠️  Icon not found: {icon_path}")
+                widget_logger.warning(f"Icon not found: {icon_path}")
                 cls._texture_cache[icon_name] = None
                 return
-            
+
             # Load image in Blender (usar nombre único para evitar conflictos)
             img_name = f"__blendflare_icon_{icon_name}__"
-            
+
             # Check if already loaded
             if img_name in bpy.data.images:
                 img = bpy.data.images[img_name]
-                print(f"♻️  Icon already loaded: {icon_name}")
+                widget_logger(f"Icon already loaded: {icon_name}")
             else:
                 img = bpy.data.images.load(icon_path, check_existing=False)
                 img.name = img_name
                 img.colorspace_settings.name = 'Non-Color'  # Importante para iconos
-                print(f"✓ Icon loaded: {icon_name}")
+                widget_logger(f"Icon loaded: {icon_name}")
             
             # Crear textura GPU desde la imagen
             # NO usar bindcode, sino gpu.texture.from_image()
@@ -157,9 +159,7 @@ class BL_UI_Button(BL_UI_Widget):
             cls._texture_cache[icon_name] = texture
             
         except Exception as e:
-            print(f"❌ Error loading icon {icon_name}: {e}")
-            import traceback
-            traceback.print_exc()
+            widget_logger.error(f"Error loading icon {icon_name}: {e}")
             cls._texture_cache[icon_name] = None
     
     @property
@@ -207,7 +207,7 @@ class BL_UI_Button(BL_UI_Widget):
                         try:
                             self.mouse_down_func(self)
                         except Exception as e:
-                            print(f"Error in button down callback: {e}")
+                            widget_logger.error(f"Error in button down callback: {e}")
                     return True
             else:  # RELEASE
                 if self._is_pressed:
@@ -217,7 +217,7 @@ class BL_UI_Button(BL_UI_Widget):
                             try:
                                 self.mouse_up_func(self)
                             except Exception as e:
-                                print(f"Error in button up callback: {e}")
+                                widget_logger.error(f"Error in button up callback: {e}")
                     return True
                 
         return False
@@ -440,7 +440,7 @@ class BL_UI_Button(BL_UI_Widget):
             gpu.state.blend_set('NONE')
             
         except Exception as e:
-            print(f"❌ Error drawing icon {self._icon}: {e}")
+            widget_logger.error(f"Error drawing icon {self._icon}: {e}")
     
     def _draw_text(self):
         """Draw button text, offset if icon exists"""
@@ -480,13 +480,13 @@ class BL_UI_Button(BL_UI_Widget):
     @classmethod
     def cleanup_textures(cls):
         """Clean up loaded textures (call on addon unregister)"""
-        print("🧹 Cleaning up icon textures...")
-        
+        widget_logger("Cleaning up icon textures...")
+
         # Clear texture cache
         cls._texture_cache.clear()
-        
+
         # Clean up loaded images
         for img_name in list(bpy.data.images.keys()):
             if img_name.startswith("__blendflare_icon_"):
                 bpy.data.images.remove(bpy.data.images[img_name])
-                print(f"  ✓ Removed: {img_name}")
+                widget_logger(f"  Removed: {img_name}")

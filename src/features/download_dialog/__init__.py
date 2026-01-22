@@ -1,5 +1,7 @@
 """Download dialog system for Blendflare assets."""
 
+from ...logger import download_logger
+
 try:
     from .operators import (
         BLENDFLARE_OT_download_dialog,
@@ -14,7 +16,7 @@ try:
     from .state import get_download_state, set_download_state, clear_download_state
     _import_ok = True
 except Exception as e:
-    print(f"[Blendflare Download Dialog] Import error: {e}")
+    download_logger.error(f"Import error: {e}")
     import traceback
     traceback.print_exc()
     _import_ok = False

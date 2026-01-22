@@ -12,6 +12,7 @@ import bpy
 from .manager import get_cache_manager
 from .metadata import CacheMetadata
 from ..toast import show_toast, show_progress_toast, dismiss_toast, ToastType
+from ...logger import cache_logger
 
 
 class DownloadStatus(Enum):
@@ -152,9 +153,16 @@ class AssetDownloader:
                                 if hasattr(project.last_updated, 'isoformat')
                                 else str(project.last_updated)
                             )
+                            # Get file size from project for fallback comparison
+                            current_file_size = getattr(project.file_info, 'file_size', 0)
 
-                            # Check if cache is still valid
-                            if not cached_meta.is_outdated(current_updated):
+                            cache_logger(f"Checking cache for {nickname}/{slug}")
+                            cache_logger(f"Server last_updated: {current_updated}")
+                            cache_logger(f"Server file_size: {current_file_size}")
+                            cache_logger(f"Asset file: {asset_file}")
+
+                            # Check if cache is still valid (by date or file size)
+                            if not cached_meta.is_outdated(current_updated, current_file_size):
                                 tracker.complete_download(nickname, slug, success=True)
                                 # Toast: using cached
                                 def show_cached_toast():
@@ -212,6 +220,9 @@ class AssetDownloader:
                     progress=0.3,
                     message=f"Downloading {file_name}..."
                 ))
+
+                # Clear old files before downloading new version
+                cache_mgr.clear_asset_dir(category, nickname, slug)
 
                 # Ensure directory exists
                 asset_dir = cache_mgr.ensure_asset_dir(category, nickname, slug)

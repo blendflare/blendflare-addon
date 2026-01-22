@@ -6,6 +6,8 @@ from dataclasses import dataclass, field, asdict
 from datetime import datetime
 from typing import Any, Dict, Optional
 
+from ...logger import cache_logger
+
 
 METADATA_VERSION = "1.0"
 
@@ -122,29 +124,55 @@ class CacheMetadata:
         except (json.JSONDecodeError, KeyError, TypeError):
             return None
 
-    def is_outdated(self, current_last_updated: str) -> bool:
+    def is_outdated(self, current_last_updated: str, current_file_size: int = 0) -> bool:
         """Check if cached version is older than the current version.
 
         Args:
             current_last_updated: ISO format datetime string from API
+            current_file_size: File size from API (optional, used as fallback check)
 
         Returns:
             True if cache is outdated and needs to be refreshed
         """
         if not self.project_data:
+            cache_logger("is_outdated: No project_data, returning True")
             return True
 
         try:
             # Parse both timestamps
-            cached_time = datetime.fromisoformat(
-                self.project_data.last_updated.replace("Z", "+00:00")
-            )
-            current_time = datetime.fromisoformat(
-                current_last_updated.replace("Z", "+00:00")
-            )
-            return current_time > cached_time
-        except (ValueError, AttributeError):
+            cached_str = self.project_data.last_updated.replace("Z", "+00:00")
+            current_str = current_last_updated.replace("Z", "+00:00")
+
+            cached_time = datetime.fromisoformat(cached_str)
+            current_time = datetime.fromisoformat(current_str)
+
+            is_old_by_date = current_time > cached_time
+
+            # Fallback: check file size if dates are equal but sizes differ
+            is_old_by_size = False
+            if not is_old_by_date and current_file_size > 0 and self.download_data:
+                cached_size = self.download_data.file_size
+                is_old_by_size = current_file_size != cached_size
+
+            is_old = is_old_by_date or is_old_by_size
+
+            cache_logger("is_outdated check:")
+            cache_logger(f"  Cached date:  {cached_str} -> {cached_time}")
+            cache_logger(f"  Server date:  {current_str} -> {current_time}")
+            if current_file_size > 0 and self.download_data:
+                cache_logger(f"  Cached size:  {self.download_data.file_size} bytes")
+                cache_logger(f"  Server size:  {current_file_size} bytes")
+            if is_old_by_date:
+                cache_logger("  Result:  OUTDATED by date (will re-download)")
+            elif is_old_by_size:
+                cache_logger("  Result:  OUTDATED by file size (will re-download)")
+            else:
+                cache_logger("  Result:  VALID (use cache)")
+
+            return is_old
+        except (ValueError, AttributeError) as e:
             # If we can't parse, assume outdated
+            cache_logger.warning(f"is_outdated: Parse error ({e}), returning True")
             return True
 
     def get_last_updated_display(self) -> str:

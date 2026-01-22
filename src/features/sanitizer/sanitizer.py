@@ -7,10 +7,7 @@ from typing import Optional
 
 import bpy
 
-
-def _log(message: str):
-    """Log a message to the console with Blendflare prefix."""
-    print(f"[Blendflare Sanitizer] {message}")
+from ...logger import sanitizer_logger as _log
 
 
 class BlendSanitizer:

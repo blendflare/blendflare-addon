@@ -4,6 +4,7 @@ Draws EnumProperty dropdowns for several Blendflare filters.
 import bpy
 from ..utils import safe_get_props
 from bpy.props import StringProperty
+from ....logger import toolbar_logger
 
 
 class BLENDFLARE_OT_clear_filter(bpy.types.Operator):
@@ -73,7 +74,7 @@ class BLENDFLARE_OT_clear_filter(bpy.types.Operator):
                 pass
             return {'FINISHED'}
         except Exception as e:
-            print(f"[Blendflare] clear_filter failed: {e}")
+            toolbar_logger.error(f"clear_filter failed: {e}")
             return {'CANCELLED'}
 
 def draw_filters_button(layout, context):

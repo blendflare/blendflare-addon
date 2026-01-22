@@ -5,6 +5,7 @@ import math
 from gpu_extras.batch import batch_for_shader
 from .bl_ui_widget import BL_UI_Widget
 from .bl_ui_button import RADIUS_NONE, RADIUS_FULL, draw_global_tooltip, clear_active_tooltip
+from ..logger import widget_logger
 
 
 class BL_UI_Drag_Panel(BL_UI_Widget):
@@ -118,7 +119,7 @@ class BL_UI_Drag_Panel(BL_UI_Widget):
                 try:
                     widget.update(widget.x_screen, widget.y_screen)
                 except Exception as e:
-                    print(f"⚠️  Error updating widget: {e}")
+                    widget_logger.error(f"Error updating widget: {e}")
             
     def center_on_screen(self, area_width, area_height):
         """Center the panel on screen"""

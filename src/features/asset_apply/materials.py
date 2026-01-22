@@ -12,11 +12,7 @@ import bpy
 from .base import ApplyResult, BaseAssetApplier
 from .utils import find_textures, is_image_loaded, get_image_filename
 from ..sanitizer import cleanup_after_import
-
-
-def _log(message: str):
-    """Log a message to the console with Blendflare prefix."""
-    print(f"[Blendflare Material] {message}")
+from ...logger import material_logger as _log
 
 
 class MaterialApplier(BaseAssetApplier):
@@ -230,7 +226,7 @@ class MaterialApplier(BaseAssetApplier):
                         image.reload()
                         relinked_count += 1
                     except Exception as e:
-                        print(f"Failed to relink texture {filename}: {e}")
+                        _log.error(f"Failed to relink texture {filename}: {e}")
 
         return relinked_count
 
@@ -308,7 +304,7 @@ class MaterialApplier(BaseAssetApplier):
                     image.pack()
                     packed_count += 1
                 except Exception as e:
-                    print(f"Failed to pack texture {image.name}: {e}")
+                    _log.error(f"Failed to pack texture {image.name}: {e}")
 
         return packed_count
 
@@ -345,7 +341,7 @@ class MaterialApplier(BaseAssetApplier):
             return True
 
         except Exception as e:
-            print(f"Failed to apply material to {obj.name}: {e}")
+            _log.error(f"Failed to apply material to {obj.name}: {e}")
             return False
 
     def _mark_as_asset(self, material: bpy.types.Material):

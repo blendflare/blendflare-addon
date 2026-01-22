@@ -5,6 +5,7 @@ import time
 from typing import Dict, Optional
 
 from ...widgets.bl_ui_toast import BL_UI_Toast, ToastType
+from ...logger import toast_logger
 
 
 class ToastManager:
@@ -185,7 +186,7 @@ class ToastManager:
                 current_y += toast.height + self.TOAST_SPACING
 
         except Exception as e:
-            print(f"[ToastManager] Draw error: {e}")
+            toast_logger.error(f"Draw error: {e}")
 
     def _get_area_size(self):
         """Get current viewport size."""

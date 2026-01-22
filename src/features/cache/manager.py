@@ -5,6 +5,8 @@ from typing import Optional, Tuple
 
 import bpy
 
+from ...logger import cache_logger
+
 
 # Singleton instance
 _cache_manager: Optional["CacheManager"] = None
@@ -137,6 +139,29 @@ class CacheManager:
         asset_dir = self.get_asset_dir(category, username, slug)
         os.makedirs(asset_dir, exist_ok=True)
         return asset_dir
+
+    def clear_asset_dir(self, category: str, username: str, slug: str) -> bool:
+        """Clear all files in an asset directory (keeps the directory).
+
+        Use this before downloading a new version to avoid duplicate files.
+
+        Returns:
+            True if cleared successfully
+        """
+        asset_dir = self.get_asset_dir(category, username, slug)
+        if not os.path.exists(asset_dir):
+            return True
+
+        try:
+            for f in os.listdir(asset_dir):
+                file_path = os.path.join(asset_dir, f)
+                if os.path.isfile(file_path):
+                    os.remove(file_path)
+                    cache_logger(f"Removed old file: {f}")
+            return True
+        except Exception as e:
+            cache_logger.error(f"Error clearing asset dir: {e}")
+            return False
 
     def delete_asset(self, category: str, username: str, slug: str) -> bool:
         """Delete an asset from the cache.

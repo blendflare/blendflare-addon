@@ -7,6 +7,7 @@ import hashlib
 import threading
 from gpu_extras.batch import batch_for_shader
 from .bl_ui_widget import BL_UI_Widget
+from ..logger import widget_logger
 
 
 class BL_UI_Image(BL_UI_Widget):
@@ -136,7 +137,7 @@ class BL_UI_Image(BL_UI_Widget):
                 )
 
             except Exception as e:
-                print(f"Error downloading image from {url}: {e}")
+                widget_logger.error(f"Error downloading image from {url}: {e}")
                 self._error = True
                 self._loading = False
                 self._loading_urls.discard(url)
@@ -199,7 +200,7 @@ class BL_UI_Image(BL_UI_Widget):
             self._schedule_redraws(3)
 
         except Exception as e:
-            print(f"Error creating GPU texture: {e}")
+            widget_logger.error(f"Error creating GPU texture: {e}")
             self._error = True
             self._loading = False
             self._loading_urls.discard(url)
@@ -293,7 +294,7 @@ class BL_UI_Image(BL_UI_Widget):
             gpu.state.blend_set('NONE')
 
         except Exception as e:
-            print(f"❌ Error drawing texture: {e}")
+            widget_logger.error(f"Error drawing texture: {e}")
             self._error = True
 
     def _draw_loading_indicator(self):
@@ -367,4 +368,4 @@ class BL_UI_Image(BL_UI_Widget):
                 shutil.rmtree(cls._cache_dir)
                 cls._cache_dir = None
             except Exception as e:
-                print(f"Error clearing disk cache: {e}")
+                widget_logger.error(f"Error clearing disk cache: {e}")

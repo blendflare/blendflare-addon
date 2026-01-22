@@ -7,6 +7,7 @@ from bpy.types import Operator
 from bpy.props import StringProperty, BoolProperty, EnumProperty
 
 from ..toast import show_toast, ToastType
+from ...logger import download_logger as _log
 
 
 # Categories that support automatic apply to scene
@@ -78,11 +79,6 @@ def _get_category_label(category: str) -> str:
         "transport": "Transport",
     }
     return labels.get(category.lower(), category.title())
-
-
-def _log(message: str):
-    """Log a message to the console with Blendflare prefix."""
-    print(f"[Blendflare] {message}")
 
 
 def _show_message(message: str, title: str = "Blendflare", icon: str = 'INFO'):
