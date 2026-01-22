@@ -178,19 +178,23 @@ class BLENDFLARE_OT_download_dialog(Operator):
             title = project.project_info.title
             # Asumimos que existe username para la URL, usamos nickname para mostrar
             author_nick = project.author.nickname
-            author_username = getattr(project.author, 'username', project.author.nickname) 
+            author_username = getattr(project.author, 'username', project.author.nickname)
             category = project.category
             subcategory = project.subcategory
             blender_version = project.technical_specs.blender_version.full_version
             render_engine = project.technical_specs.render_engine
             file_size = project.file_info.file_size
             poly_count = project.file_info.poly_count
+            file_name = project.file_info.file_name
             license_type = project.legal.license_type
         except AttributeError:
             layout.label(text="Invalid project data", icon='ERROR')
             return
 
-        is_compatible = is_version_compatible(blender_version)
+        # For HDRIs with .zip files, skip version check (they contain .hdr/.exr images)
+        # Only check version for direct .blend files
+        is_hdri_zip = category.lower() == "hdris" and file_name.lower().endswith('.zip')
+        is_compatible = is_hdri_zip or is_version_compatible(blender_version)
         current_version = get_current_blender_version_string()
         cache_mgr = get_cache_manager()
         is_cached = cache_mgr.asset_exists(category, author_nick, project.slug)
@@ -308,10 +312,13 @@ class BLENDFLARE_OT_download_dialog(Operator):
             self.report({'ERROR'}, "No project data")
             return {'CANCELLED'}
 
+        category = project.category.lower()
         blender_version = project.technical_specs.blender_version.full_version
-        is_compatible = is_version_compatible(blender_version)
+        file_name = project.file_info.file_name
 
-        
+        is_hdri_zip = category == "hdris" and file_name.lower().endswith('.zip')
+        is_compatible = is_hdri_zip or is_version_compatible(blender_version)
+
         if not is_compatible:
             self.report({'ERROR'}, f"Blender {blender_version} or newer required to apply asset")
             return {'CANCELLED'}
@@ -359,8 +366,13 @@ class BLENDFLARE_OT_download_and_apply_asset(Operator):
             self.report({'ERROR'}, "No project data")
             return {'CANCELLED'}
 
+        category = project.category.lower()
         blender_version = project.technical_specs.blender_version.full_version
-        if not is_version_compatible(blender_version):
+        file_name = project.file_info.file_name
+
+        # For HDRIs with .zip files, skip version check (they contain .hdr/.exr images)
+        is_hdri_zip = category == "hdris" and file_name.lower().endswith('.zip')
+        if not is_hdri_zip and not is_version_compatible(blender_version):
             self.report({'ERROR'}, f"Blender {blender_version} or newer required")
             return {'CANCELLED'}
 
