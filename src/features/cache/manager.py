@@ -138,6 +138,29 @@ class CacheManager:
         os.makedirs(asset_dir, exist_ok=True)
         return asset_dir
 
+    def clear_asset_dir(self, category: str, username: str, slug: str) -> bool:
+        """Clear all files in an asset directory (keeps the directory).
+
+        Use this before downloading a new version to avoid duplicate files.
+
+        Returns:
+            True if cleared successfully
+        """
+        asset_dir = self.get_asset_dir(category, username, slug)
+        if not os.path.exists(asset_dir):
+            return True
+
+        try:
+            for f in os.listdir(asset_dir):
+                file_path = os.path.join(asset_dir, f)
+                if os.path.isfile(file_path):
+                    os.remove(file_path)
+                    print(f"[Blendflare Cache] Removed old file: {f}")
+            return True
+        except Exception as e:
+            print(f"[Blendflare Cache] Error clearing asset dir: {e}")
+            return False
+
     def delete_asset(self, category: str, username: str, slug: str) -> bool:
         """Delete an asset from the cache.
 
