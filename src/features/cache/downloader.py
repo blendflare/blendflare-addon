@@ -246,6 +246,15 @@ class AssetDownloader:
                             message=f"Downloading... {percent}%"
                         ))
 
+
+                # Set custom User-Agent
+                opener = urllib.request.build_opener()
+                opener.addheaders = [
+                    ('User-Agent', 'blendflare-python/1.0.3'),
+                ]
+        
+                urllib.request.install_opener(opener)
+
                 urllib.request.urlretrieve(download_url, file_path, report_hook)
 
                 # Step 4: Save metadata
